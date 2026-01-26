@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.env
+
+# ML models & large files
+*.pth
+*.pt
+*.h5
+
+# Videos & images (datasets)
+*.mp4
+*.avi
+*.mov
+*.jpg
+*.png
+
+# Temporary folders
+temp_videos/
+uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
