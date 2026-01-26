@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CampusGuard – Modules</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="modules-theme">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <h2 class="logo">CampusGuard</h2>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="modules.html">Modules</a></li>
+      <li><a href="demo.html">Demo</a></li>
+      <li><a href="team.html">Team</a></li>
+    </ul>
+  </nav>
+
+  <!-- HEADER -->
+  <section class="page-header">
+    <h1>AI Safety Modules</h1>
+    <p>Intelligent systems designed to protect campus environments</p>
+  </section>
+
+  <!-- MODULES GRID -->
+  <section class="modules-grid reveal">
+
+    <div class="module-card violence">
+      <h3>🎥 Violence Detection</h3>
+      <p>Detects suspicious or violent activities from CCTV footage using deep learning.</p>
+      <ul>
+        <li>Input: CCTV Video</li>
+        <li>AI Model: CNN / Anomaly Detection</li>
+        <li>Output: Alert </li>
+      </ul>
+      <a href="modules/violence.html" class="btn small">View Module</a>
+    </div>
+
+    <div class="module-card lost">
+      <h3>🎒 Lost & Found AI</h3>
+      <p>Matches a lost object image with multiple CCTV videos to identify its location.</p>
+      <ul>
+        <li>Input: Image + Videos</li>
+        <li>AI Model: CNN + Similarity Matching</li>
+        <li>Output: Camera ID + Room</li>
+      </ul>
+      <a href="modules/lost_found.html" class="btn small">View Module</a>
+    </div>
+
+    <div class="module-card abuse">
+      <h3>🗣 Abusive Language Detection</h3>
+      <p>Identifies abusive or threatening language from text or speech inputs.</p>
+      <ul>
+        <li>Input:  Audio</li>
+        <li>AI Model: NLP (BERT)</li>
+        <li>Output: Flagged Content</li>
+      </ul>
+      <a href="modules/abusive_language.html" class="btn small">View Module</a>
+    </div>
+
+    <div class="module-card keyword">
+      <h3>🚨 Keyword Detection</h3>
+      <p>Detects emergency keywords like “help” or “save me” from audio streams.</p>
+      <ul>
+        <li>Input: Audio</li>
+        <li>AI Model: Speech Recognition</li>
+        <li>Output: Emergency Alert</li>
+      </ul>
+      <a href="modules/keyword_detection.html" class="btn small">View Module</a>
+    </div>
+
+  </section>
+<script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CampusGuard – Demo</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="demo-theme">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <h2 class="logo">CampusGuard</h2>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="modules.html">Modules</a></li>
+    <li><a href="demo.html">Demo</a></li>
+    <li><a href="team.html">Team</a></li>
+  </ul>
+</nav>
+
+<!-- HEADER -->
+<section class="page-header reveal">
+  <h1>🧪 AI Demo & Testing</h1>
+  <p>Upload inputs to test CampusGuard AI modules</p>
+</section>
+
+<!-- DEMO GRID -->
+<section class="demo-grid reveal">
+
+  <!-- Violence Detection -->
+  <div class="demo-card gradient-red">
+    <h3>🎥 Violence Detection</h3>
+    <input type="file" accept="video/*">
+    <button class="btn" disabled>Analyze Video</button>
+    <p class="result">Status: <span>Integration pending</span></p>
+  </div>
+
+<!-- Lost & Found -->
+<div class="demo-card gradient-green">
+  <h3>🎒 Lost & Found AI</h3>
+  <p>Upload lost item image and CCTV video.</p>
+
+  <input type="file" id="lostImage" accept="image/*">
+  <input type="file" id="lostVideo" accept="video/*">
+
+ <button type="button" class="btn" onclick="findLostItem(event, this)">
+  Find Lost Item
+</button>
+
+  <p class="result">
+    Status: <span>Waiting for input</span>
+  </p>
+</div>
+
+
+
+  <!-- Abusive Language -->
+  <div class="demo-card gradient-pink">
+    <h3>🗣 Abusive Language Detection</h3>
+    <input type="file" accept="audio/*">
+    <button class="btn" disabled>Analyze Audio</button>
+    <p class="result">Status: <span>Integration pending</span></p>
+  </div>
+
+  <!-- Keyword Detection -->
+  <div class="demo-card gradient-teal">
+    <h3>🚨 Emergency Keyword Detection</h3>
+    <input type="file" accept="audio/*">
+    <button class="btn" disabled>Detect Keywords</button>
+    <p class="result">Status: <span>Integration pending</span></p>
+  </div>
+
+</section>
+
+<footer>
+  <p>© 2026 CampusGuard</p>
+</footer>
+
+<script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>About | CampusGuard</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="about-theme">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <h2 class="logo">CampusGuard</h2>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html" class="active">About</a></li>
+    <li><a href="modules.html">Modules</a></li>
+    <li><a href="demo.html">Demo</a></li>
+    <li><a href="team.html">Team</a></li>
+  </ul>
+</nav>
+
+<!-- HEADER -->
+<section class="page-header reveal">
+  <h1>CampusGuard</h1>
+  <p>
+    A Multi-Modal AI-Based Campus Safety System <br>
+    <span style="color:#22D3EE;">
+      Integrating Video Analytics, Speech Recognition & NLP
+    </span>
+  </p>
+</section>
+
+<!-- ABSTRACT -->
+<section class="about-content reveal">
+  <div class="about-box gradient-blue full-width">
+    <h2>📘 Project Abstract</h2>
+    <p>
+      CampusGuard is a multi-modal AI-based campus safety framework designed
+      to overcome the limitations of traditional manual surveillance systems.
+      By integrating video, audio, and text analytics, the system enables
+      proactive threat detection, faster response times, and intelligent
+      decision-making across campus environments.
+    </p>
+  </div>
+</section>
+
+<!-- INTRODUCTION -->
+<section class="about-content reveal">
+
+  <div class="about-box gradient-purple">
+    <h2>🎯 Motivation</h2>
+    <p>
+      Growing campus populations and open-access environments make
+      manual CCTV monitoring inefficient. Human-based surveillance
+      suffers from fatigue, delayed response, and missed incidents.
+    </p>
+  </div>
+
+  <div class="about-box gradient-green">
+    <h2>💡 Our Solution</h2>
+    <p>
+      CampusGuard automates surveillance using AI models capable of
+      understanding visual, audio, and textual cues to identify threats
+      proactively rather than reactively.
+    </p>
+  </div>
+
+</section>
+
+<!-- MODULE OVERVIEW -->
+<section class="about-content reveal">
+
+  <div class="about-box gradient-orange">
+    <h2>🎥 Violence Detection</h2>
+    <p>
+      Uses a CNN-LSTM architecture where CNN extracts spatial features
+      from video frames and LSTM models temporal motion to detect violent
+      behavior accurately.
+    </p>
+  </div>
+
+  <div class="about-box gradient-pink">
+    <h2>🗣 Abusive Language Detection</h2>
+    <p>
+      Surveillance audio is converted to text using ASR, followed by
+      CNN-based NLP classifiers that identify abusive or threatening speech
+      with high accuracy.
+    </p>
+  </div>
+
+  <div class="about-box gradient-teal">
+    <h2>🚨 Emergency Keyword Detection</h2>
+    <p>
+      A lightweight TF-IDF + Naive Bayes model detects emergency words
+      like “help” or “danger” to generate rapid alerts with minimal
+      computation cost.
+    </p>
+  </div>
+
+  <div class="about-box gradient-dark">
+    <h2>🎒 Lost & Found AI</h2>
+    <p>
+      Uses pretrained ResNet embeddings and cosine similarity to match
+      lost item images with CCTV frames, returning camera ID, location,
+      timestamp, and confidence score.
+    </p>
+  </div>
+
+</section>
+
+<!-- CONTRIBUTIONS -->
+<section class="about-content reveal">
+  <div class="about-box gradient-blue full-width">
+    <h2>🏆 Key Contributions</h2>
+    <ul>
+      <li>Multi-modal AI-based campus safety framework</li>
+      <li>CNN-LSTM violence detection from CCTV</li>
+      <li>Audio-based abusive speech recognition</li>
+      <li>Efficient emergency keyword detection</li>
+      <li>Object re-identification using visual similarity</li>
+    </ul>
+  </div>
+</section>
+
+<!-- CONCLUSION -->
+<section class="about-content reveal">
+  <div class="about-box gradient-purple full-width">
+    <h2>🔮 Conclusion & Future Scope</h2>
+    <p>
+      CampusGuard demonstrates how integrated AI models significantly
+      enhance campus security by reducing false alarms and improving
+      situational awareness. Future enhancements include real-time
+      deployment, transformer-based models, edge optimization, and
+      mobile alert integration.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 CampusGuard | About Project</p>
+</footer>
+
+<script src="js/script.js"></script>
+</body>
+</html>

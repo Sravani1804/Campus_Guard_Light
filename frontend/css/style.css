@@ -1,0 +1,454 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #0F172A;
+  color: white;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 50px;
+  background: rgba(0,0,0,0.3);
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+}
+
+.navbar ul li {
+  margin-left: 25px;
+}
+
+.navbar ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+/* HERO */
+.hero {
+  height: 80vh;
+  text-align: center;
+  padding-top: 150px;
+  background: linear-gradient(135deg, #6C63FF, #00D4FF);
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+}
+
+.hero p {
+  font-size: 1.5rem;
+  margin: 20px 0;
+}
+
+.hero-buttons {
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 12px 30px;
+  background: white;
+  color: black;
+  border-radius: 30px;
+  text-decoration: none;
+  margin: 10px;
+  font-weight: 600;
+}
+
+.outline {
+  background: transparent;
+  border: 2px solid white;
+  color: white;
+}
+
+
+/* ================= HOME PAGE FIX ================= */
+
+/* HOME MODULE GRID */
+.home-modules {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  padding: 60px;
+  background: linear-gradient(135deg, #6C63FF, #00D4FF);
+}
+
+/* HOME CARDS */
+.home-card {
+  padding: 35px;
+  border-radius: 22px;
+  color: white;
+  text-align: center;
+  min-height: 180px;
+
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.18);
+
+  transition: all 0.4s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+/* INDIVIDUAL COLORS */
+.home-card.violence {
+  background: linear-gradient(135deg, #3B0764, #581C87);
+}
+
+.home-card.lost {
+  background: linear-gradient(135deg, #042F2E, #065F46);
+}
+
+.home-card.abuse {
+  background: linear-gradient(135deg, #7C2D12, #9A3412);
+}
+
+.home-card.keyword {
+  background: linear-gradient(135deg, #1E3A8A, #1D4ED8);
+}
+
+/* HOVER ANIMATION */
+.home-card:hover {
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 25px 40px rgba(0,0,0,0.35);
+}
+
+
+/* SHINE EFFECT */
+.home-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255,255,255,0.25), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.home-card:hover::after {
+  opacity: 1;
+}
+
+/* REVEAL ANIMATION (FIXED) */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+.card {
+  background: rgba(255,255,255,0.1);
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #020617;
+}
+/* PAGE HEADER */
+.page-header {
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #1E293B, #020617);
+}
+
+.page-header h1 {
+  font-size: 3rem;
+}
+
+.page-header p {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: #CBD5E1;
+}
+
+/* ================= MODULES PAGE BACKGROUND ================= */
+
+.modules-theme {
+  background: linear-gradient(135deg, #020617, #111827);
+  min-height: 100vh;
+}
+
+
+/* MODULES GRID */
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  padding: 60px;
+}
+
+/* ================= MODULE CARD BASE ================= */
+
+.module-card {
+  padding: 40px;
+  border-radius: 26px;
+  color: white;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+/* ================= INDIVIDUAL MODULE COLORS ================= */
+
+/* Violence Detection – Purple */
+.module-card.violence {
+  background: linear-gradient(135deg, #4C1D95, #6D28D9);
+}
+
+/* Lost & Found – Green */
+.module-card.lost {
+  background: linear-gradient(135deg, #064E3B, #059669);
+}
+
+/* Abusive Language – Orange */
+.module-card.abuse {
+  background: linear-gradient(135deg, #7C2D12, #EA580C);
+}
+
+/* Keyword Detection – Blue */
+.module-card.keyword {
+  background: linear-gradient(135deg, #1E3A8A, #2563EB);
+}
+
+
+.module-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+}
+
+.module-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.module-card ul {
+  margin: 15px 0;
+  padding-left: 20px;
+}
+
+.module-card ul li {
+  margin-bottom: 8px;
+  color: #E5E7EB;
+}
+
+.btn.small {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 8px 20px;
+  font-size: 0.9rem;
+}
+/* DEMO GRID */
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 35px;
+  padding: 60px;
+}
+
+.demo-card {
+  padding: 35px;
+  border-radius: 25px;
+  backdrop-filter: blur(12px);
+  color: white;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.demo-card:hover {
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+}
+
+.demo-card h3 {
+  margin-bottom: 15px;
+}
+
+.demo-card input,
+.demo-card textarea {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+.demo-card textarea {
+  height: 80px;
+}
+
+.result span {
+  margin-top: 10px;
+  color: #22D3EE;
+  font-Weight:600;
+}
+/* ABOUT PAGE */
+.about-content {
+  padding: 60px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+}
+
+.about-box {
+  background: rgba(255,255,255,0.08);
+  padding: 30px;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.about-box h2 {
+  margin-bottom: 15px;
+}
+
+.about-box ul {
+  padding-left: 20px;
+}
+
+.about-box ul li {
+  margin-bottom: 10px;
+  color: #E5E7EB;
+}
+/* TEAM PAGE */
+.team-section {
+  padding: 60px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+/* TEAM PAGE */
+.team-section {
+  padding: 60px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.team-card {
+ 
+  padding: 35px;
+  border-radius: 25px;
+  text-align: center;
+  color:white;
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s;
+}
+
+.team-card:hover {
+  transform: translateY(-12px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.team-card .role {
+  font-weight: 600;
+  margin-top: 10px;
+  color: #E5E7EB;
+}
+
+.team-card small {
+  display: block;
+  margin-top: 8px;
+  color: #CBD5E1;
+}
+
+.contact-section {
+  text-align: center;
+  padding: 40px;
+  background: #020617;
+}
+
+
+.btn:hover {
+  box-shadow: 0 0 20px rgba(34,211,238,0.8);
+}
+/* ---------- GRADIENT BOX COLORS ---------- */
+.gradient-green {
+  background: linear-gradient(135deg, #064e3b, #047857);
+}
+
+.gradient-purple {
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+}
+
+.gradient-blue {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+}
+
+.gradient-orange {
+  background: linear-gradient(135deg, #7c2d12, #ea580c);
+}
+
+.gradient-teal {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+}
+
+.gradient-pink {
+  background: linear-gradient(135deg, #831843, #ec4899);
+}
+
+.gradient-dark {
+  background: linear-gradient(135deg, #020617, #0f172a);
+}
+
+/* ---------- WORKFLOW IMAGE ---------- */
+.workflow-img {
+  width: 100%;
+  max-width: 900px;
+  margin: 30px auto 0;
+  display: block;
+  background: white;
+  padding: 15px;
+  border-radius: 18px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.45);
+}
+
+/* ---------- FULL WIDTH ---------- */
+.full-width {
+  grid-column: span 2;
+}
+
+/* ---------- ANIMATION ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.gradient-red {
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+}
+.result span {
+  opacity: 1 !important;
+  color: #fff !important;
+  display: inline !important;
+}
+

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lost & Found AI | CampusGuard</title>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="../css/style.css">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="modules-theme">
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+  <h2 class="logo">CampusGuard</h2>
+  <ul>
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="../about.html">About</a></li>
+    <li><a href="../modules.html">Modules</a></li>
+    <li><a href="../demo.html">Demo</a></li>
+    <li><a href="../team.html">Team</a></li>
+  </ul>
+</nav>
+
+<!-- ================= HEADER ================= -->
+<section class="page-header reveal">
+  <h1>🎒 Lost & Found AI</h1>
+  <p>
+    Intelligent system to locate lost objects using CCTV video analysis
+  </p>
+</section>
+
+<!-- ================= CONTENT ================= -->
+<section class="about-content reveal">
+
+  <div class="about-box gradient-green">
+    <h2>🔍 What This Module Does</h2>
+    <p>
+      The Lost & Found AI module helps identify the exact location of misplaced
+      objects by matching a lost item image with frames extracted from multiple
+      CCTV videos installed across the campus.
+    </p>
+  </div>
+
+  <div class="about-box gradient-purple">
+    <h2>🧠 AI Model Used</h2>
+    <ul>
+      <li>Pretrained CNN – ResNet50</li>
+      <li>Deep Feature Extraction</li>
+      <li>Cosine Similarity Matching</li>
+      <li>Transfer Learning (No dataset training)</li>
+    </ul>
+  </div>
+
+  <div class="about-box gradient-blue">
+    <h2>⚙ How It Works</h2>
+    <ol>
+      <li>User uploads a lost item image</li>
+      <li>CCTV videos are processed offline</li>
+      <li>Frames are extracted at intervals</li>
+      <li>Features are compared using similarity</li>
+      <li>Best matching camera and room detected</li>
+    </ol>
+  </div>
+
+  <div class="about-box gradient-orange">
+    <h2>📥 Input & 📤 Output</h2>
+    <ul>
+      <li><b>Input:</b> Lost item image + CCTV videos</li>
+      <li><b>Output:</b> Camera ID, Room No, Timestamp, Confidence</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ================= WORKFLOW ================= -->
+<section class="about-content reveal">
+
+  <div class="about-box full-width gradient-dark">
+    <h2>🔄 System Workflow</h2>
+    <p>
+      The flowchart below illustrates the complete working process of the
+      Lost & Found AI model, from image upload to final location detection.
+    </p>
+
+    <!-- WORKFLOW IMAGE -->
+    <img
+      src="../assets/lost_found_workflow.png"
+      alt="Lost & Found AI Workflow"
+      class="workflow-img"
+    >
+  </div>
+
+</section>
+
+<!-- ================= EXTRA INFO ================= -->
+<section class="about-content reveal">
+
+  <div class="about-box gradient-teal">
+    <h2>📌 Why No Dataset Training?</h2>
+    <p>
+      Instead of training a custom dataset, a pretrained ResNet model is used.
+      This reduces training time, computational cost, and improves generalization
+      for unseen objects.
+    </p>
+  </div>
+
+  <div class="about-box gradient-pink">
+    <h2>🚀 Future Scope</h2>
+    <ul>
+      <li>Real-time CCTV integration</li>
+      <li>Automatic alert notifications</li>
+      <li>Mobile app support</li>
+      <li>Cloud-based deployment</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ================= ACTION ================= -->
+<section class="page-header reveal">
+  <a href="../demo.html" class="btn">Try Live Demo</a>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <p>© 2026 CampusGuard | Lost & Found AI Module</p>
+</footer>
+
+<!-- ================= SCRIPT ================= -->
+<script src="../js/script.js"></script>
+
+</body>
+</html>
