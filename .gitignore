@@ -43,3 +43,16 @@ backend/keyword_detection_backend/temp*
 # Datasets
 backend/campus_guard_audio*
 backend/keyword_detection_backend/test_train_model/
+# Audio files
+*.wav
+
+# ML models
+*.pkl
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.env
