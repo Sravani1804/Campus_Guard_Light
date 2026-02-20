@@ -25,3 +25,21 @@ uploads/
 # OS files
 .DS_Store
 Thumbs.db
+# Python
+__pycache__/
+*.pyc
+
+# ML models
+*.pkl
+
+# Audio files
+*.wav
+*.webm
+
+# Temp files
+temp*
+backend/keyword_detection_backend/temp*
+
+# Datasets
+backend/campus_guard_audio*
+backend/keyword_detection_backend/test_train_model/

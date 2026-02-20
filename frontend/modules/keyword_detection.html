@@ -1,70 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Keyword Detection | CampusGuard</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8" />
+  <title>CampusGuard | Emergency Keyword Detection</title>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #020617, #020617);
+      font-family: "Poppins", sans-serif;
+      color: #fff;
+    }
+
+    .page-header {
+      text-align: center;
+      margin: 80px 20px 40px;
+    }
+
+    .demo-grid {
+      display: flex;
+      justify-content: center;
+      padding-bottom: 60px;
+    }
+
+    .demo-card {
+      width: 420px;
+      padding: 30px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .demo-card h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      color: #000;
+    }
+
+    .btn.outline {
+      background: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      opacity: 0.8;
+    }
+  </style>
 </head>
 
-<body class="modules-theme">
+<body>
 
+<!-- NAVBAR -->
 <nav class="navbar">
   <h2 class="logo">CampusGuard</h2>
+  <ul>
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="../about.html">About</a></li>
+    <li><a href="../modules.html">Modules</a></li>
+    <li><a href="../demo.html">Demo</a></li>
+    <li><a href="../team.html">Team</a></li>
+  </ul>
 </nav>
 
-<section class="page-header reveal">
+<!-- HEADER -->
+<section class="page-header">
   <h1>🚨 Emergency Keyword Detection</h1>
-  <p>Detects SOS words like “help”, “save me”, “emergency”</p>
+  <p>Upload or speak words like <b>help</b>, <b>save me</b>, <b>danger</b></p>
 </section>
 
-<section class="about-content reveal">
+<!-- DEMO -->
+<section class="demo-grid">
+  <div class="demo-card">
 
-  <div class="about-box gradient-teal">
-    <h2>🔍 What It Does</h2>
-    <p>
-      Listens to audio or text input and detects emergency keywords indicating
-      distress or danger.
-    </p>
+    <h3>🎙 Audio Detection</h3>
+
+    <!-- File Upload -->
+    <input type="file" id="audioFile" accept="audio/*" class="btn outline" />
+    <button class="btn" onclick="uploadAudio()">Detect Keywords</button>
+
+    <hr style="margin:20px 0; opacity:0.4">
+
+    <!-- Live Recording -->
+    <button class="btn" onclick="startRecording()">🎙 Start Recording</button>
+    <button class="btn outline" onclick="stopRecording()">⏹ Stop Recording</button>
+
+    <p class="result"><b>Status:</b> <span id="status">Idle</span></p>
+    <p class="result" id="result"></p>
+
   </div>
-
-  <div class="about-box gradient-purple">
-    <h2>🧠 AI Model Used</h2>
-    <ul>
-      <li>Keyword Spotting (KWS)</li>
-      <li>MFCC Feature Extraction</li>
-      <li>Deep Learning Audio Models</li>
-    </ul>
-  </div>
-
-  <div class="about-box gradient-blue">
-    <h2>⚙ How It Works</h2>
-    <ol>
-      <li>Audio input</li>
-      <li>Feature extraction (MFCC)</li>
-      <li>Keyword classification</li>
-      <li>Emergency alert generation</li>
-    </ol>
-  </div>
-
-  <div class="about-box gradient-orange">
-    <h2>📥 Input & 📤 Output</h2>
-    <ul>
-      <li><b>Input:</b> Audio / Text</li>
-      <li><b>Output:</b> Emergency keyword alert</li>
-    </ul>
-  </div>
-
-</section>
-
-<!-- ================= ACTION ================= -->
-<section class="page-header reveal">
-  <a href="../demo.html" class="btn">Try Live Demo</a>
 </section>
 
 <footer>
-  <p>© 2026 CampusGuard | Keyword Detection Module</p>
+  © 2026 CampusGuard
 </footer>
 
-<script src="../js/script.js"></script>
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+/* -------- LIVE RECORDING -------- */
+function startRecording() {
+  audioChunks = [];
+  document.getElementById("status").innerText = "Recording...";
+
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    })
+    .catch(() => {
+      document.getElementById("status").innerText = "Mic permission denied";
+    });
+}
+
+function stopRecording() {
+  if (!mediaRecorder) return;
+
+  mediaRecorder.stop();
+  document.getElementById("status").innerText = "Processing...";
+
+  mediaRecorder.onstop = () => {
+    const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+    sendAudio(audioBlob);
+  };
+}
+
+/* -------- FILE UPLOAD -------- */
+function uploadAudio() {
+  const file = document.getElementById("audioFile").files[0];
+  if (!file) {
+    alert("Please choose an audio file");
+    return;
+  }
+  document.getElementById("status").innerText = "Processing...";
+  sendAudio(file);
+}
+
+/* -------- BACKEND CALL -------- */
+function sendAudio(audioBlob) {
+  const formData = new FormData();
+  formData.append("file", audioBlob);
+
+  fetch("http://127.0.0.1:8000/keyword/predict-audio", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    const text = data.recognized_text || data.text || "N/A";
+    const prediction = data.prediction || data.result || "N/A";
+
+    document.getElementById("status").innerText = "Done";
+    document.getElementById("result").innerHTML =
+      `🗣 <b>Text:</b> ${text}<br>🚨 <b>Result:</b> ${prediction}`;
+  })
+  .catch(() => {
+    document.getElementById("status").innerText = "Error";
+    document.getElementById("result").innerText =
+      "❌ Backend not reachable";
+  });
+}
+</script>
+
 </body>
 </html>

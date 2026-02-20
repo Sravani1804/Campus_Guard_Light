@@ -67,12 +67,16 @@
   </div>
 
   <!-- Keyword Detection -->
-  <div class="demo-card gradient-teal">
-    <h3>🚨 Emergency Keyword Detection</h3>
-    <input type="file" accept="audio/*">
-    <button class="btn" disabled>Detect Keywords</button>
-    <p class="result">Status: <span>Integration pending</span></p>
-  </div>
+  <div class="demo-card teal">
+  <h3>🚨 Emergency Keyword Detection</h3>
+
+  <input type="file" id="emergencyAudio" accept="audio/*">
+
+  <button class="btn" onclick="detectEmergency()">Detect Keywords</button>
+
+  <p id="emergencyStatus">Status: Waiting for input</p>
+  <p id="emergencyResult"></p>
+</div>
 
 </section>
 
