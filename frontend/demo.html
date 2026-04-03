@@ -67,14 +67,22 @@
   </div>
 
   <!-- Keyword Detection -->
-  <div class="demo-card teal">
+ <!-- Keyword Detection -->
+<div class="demo-card gradient-teal">
   <h3>🚨 Emergency Keyword Detection</h3>
 
+  <!-- File Upload -->
   <input type="file" id="emergencyAudio" accept="audio/*">
 
   <button class="btn" onclick="detectEmergency()">Detect Keywords</button>
 
-  <p id="emergencyStatus">Status: Waiting for input</p>
+  <hr style="margin:15px 0; opacity:0.4">
+
+  <!-- Live Recording -->
+  <button class="btn" onclick="startRecording()">🎙 Start Recording</button>
+  <button class="btn outline" onclick="stopRecording()">⏹ Stop Recording</button>
+
+  <p id="emergencyStatus">Status: Idle</p>
   <p id="emergencyResult"></p>
 </div>
 

@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# IMPORT BOTH MODULES
 from lost_found_ai.app import router as lost_found_router
+from keyword_detection_backend.keyword_detection import router as keyword_router
 
-app = FastAPI()
+app = FastAPI(title="Campus Guard Backend")
 
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -11,4 +15,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# INCLUDE BOTH ROUTERS
 app.include_router(lost_found_router)
+app.include_router(keyword_router)
+
+# ROOT
+@app.get("/")
+def home():
+    return {"status": "Backend running"}
