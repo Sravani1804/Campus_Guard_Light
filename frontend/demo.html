@@ -59,12 +59,23 @@
 
 
   <!-- Abusive Language -->
-  <div class="demo-card gradient-pink">
-    <h3>🗣 Abusive Language Detection</h3>
-    <input type="file" accept="audio/*">
-    <button class="btn" disabled>Analyze Audio</button>
-    <p class="result">Status: <span>Integration pending</span></p>
-  </div>
+<div class="demo-card gradient-pink">
+  <h3>🗣 Abusive Language Detection</h3>
+
+  <!-- File Upload -->
+  <input type="file" id="abuseAudio" accept="audio/*">
+
+  <button class="btn" onclick="detectAbuse()">Analyze Audio</button>
+
+  <hr style="margin:15px 0; opacity:0.4">
+
+  <!-- Live Recording -->
+  <button class="btn" onclick="startAbuseRecording()">🎙 Start Recording</button>
+  <button class="btn outline" onclick="stopAbuseRecording()">⏹ Stop Recording</button>
+
+  <p id="abuseStatus">Status: Idle</p>
+  <p id="abuseResult"></p>
+</div>
 
   <!-- Keyword Detection -->
  <!-- Keyword Detection -->

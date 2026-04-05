@@ -161,6 +161,96 @@ function sendEmergencyAudio(audioBlob) {
     });
 }
 
+/* =========================================================
+   🗣 ABUSIVE DETECTION (UPLOAD + LIVE RECORDING)
+   ========================================================= */
+
+let abuseRecorder;
+let abuseChunks = [];
+
+/* -------- START RECORDING -------- */
+function startAbuseRecording() {
+  abuseChunks = [];
+
+  const status = document.getElementById("abuseStatus");
+  status.innerText = "Status: Recording...";
+
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      abuseRecorder = new MediaRecorder(stream);
+      abuseRecorder.start();
+
+      abuseRecorder.ondataavailable = e => {
+        abuseChunks.push(e.data);
+      };
+    })
+    .catch(() => {
+      status.innerText = "Status: Mic permission denied";
+    });
+}
+
+
+/* -------- STOP RECORDING -------- */
+function stopAbuseRecording() {
+  if (!abuseRecorder) return;
+
+  const status = document.getElementById("abuseStatus");
+  status.innerText = "Status: Processing...";
+
+  abuseRecorder.stop();
+
+  abuseRecorder.onstop = () => {
+    const audioBlob = new Blob(abuseChunks, { type: "audio/webm" });
+    sendAbuseAudio(audioBlob);
+  };
+}
+
+
+/* -------- FILE UPLOAD -------- */
+function detectAbuse() {
+  const fileInput = document.getElementById("abuseAudio");
+
+  if (!fileInput.files.length) {
+    alert("Please select an audio file");
+    return;
+  }
+
+  sendAbuseAudio(fileInput.files[0]);
+}
+
+
+/* -------- COMMON BACKEND CALL -------- */
+function sendAbuseAudio(audioBlob) {
+  const status = document.getElementById("abuseStatus");
+  const result = document.getElementById("abuseResult");
+
+  status.innerText = "Status: Processing...";
+  result.innerText = "";
+
+  const formData = new FormData();
+  formData.append("file", audioBlob);
+
+  fetch("http://127.0.0.1:8000/abuse/predict-audio", {
+    method: "POST",
+    body: formData
+  })
+    .then(res => res.json())
+    .then(data => {
+      status.innerText = "Status: Done";
+
+      console.log("ABUSE API:", data);
+
+      const text = data.recognized_text || "N/A";
+      const prediction = data.result || "N/A";
+
+      result.innerHTML =
+        `🗣 <b>Text:</b> ${text}<br>⚠️ <b>Result:</b> ${prediction}`;
+    })
+    .catch(() => {
+      status.innerText = "Status: Error";
+      result.innerText = "❌ Backend not reachable";
+    });
+}
 
 /* =========================================================
    SCROLL ANIMATION
