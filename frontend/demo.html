@@ -32,12 +32,15 @@
 <section class="demo-grid reveal">
 
   <!-- Violence Detection -->
-  <div class="demo-card gradient-red">
-    <h3>🎥 Violence Detection</h3>
-    <input type="file" accept="video/*">
-    <button class="btn" disabled>Analyze Video</button>
-    <p class="result">Status: <span>Integration pending</span></p>
-  </div>
+ <div class="demo-card gradient-red">
+  <h3>🎥 Violence Detection</h3>
+
+  <input type="file" id="violenceVideo" accept="video/*">
+
+  <button class="btn" onclick="detectViolence()">Analyze Video</button>
+
+  <p id="violenceResult">Status: Waiting...</p>
+</div>
 
 <!-- Lost & Found -->
 <div class="demo-card gradient-green">

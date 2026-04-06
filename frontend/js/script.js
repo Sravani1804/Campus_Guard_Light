@@ -57,18 +57,36 @@ The object was not detected in the given CCTV footage.`;
 
 
 /* ---------------- VIOLENCE & ABUSE (PLACEHOLDER) ---------------- */
-function analyzeViolence(btn) {
-  showPendingStatus(btn, "Backend AI model not connected yet");
-}
+function detectViolence() {
+  const fileInput = document.getElementById("violenceVideo");
+  const result = document.getElementById("violenceResult");
 
-function analyzeAbuseAudio(btn) {
-  showPendingStatus(btn, "Audio-based abuse detection model pending");
-}
+  if (!fileInput.files.length) {
+    result.innerText = "⚠️ Upload video";
+    return;
+  }
 
-function showPendingStatus(btn, message) {
-  const card = btn.closest(".demo-card");
-  const result = card.querySelector(".result span");
-  result.innerText = message;
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  result.innerText = "⏳ Processing video...";
+
+  fetch("http://127.0.0.1:8000/violence/predict", {
+    method: "POST",
+    body: formData
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        result.innerText = "❌ " + data.error;
+        return;
+      }
+
+      result.innerText = "Result: " + data.result;
+    })
+    .catch(() => {
+      result.innerText = "❌ Backend error";
+    });
 }
 
 

@@ -7,6 +7,7 @@ from keyword_detection_backend.keyword_detection import router as keyword_router
 
 # ✅ ADD THIS
 from abusive_detection.app import router as abusive_router
+from violence_detection.app import router as violence_router
 
 app = FastAPI(title="Campus Guard Backend")
 
@@ -25,6 +26,7 @@ app.include_router(keyword_router)
 
 # ✅ ADD THIS
 app.include_router(abusive_router, prefix="/abuse", tags=["Abuse Detection"])
+app.include_router(violence_router)
 
 # ROOT
 @app.get("/")
