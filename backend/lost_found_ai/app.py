@@ -5,7 +5,7 @@ from PIL import Image
 from .model import extract_features
 from .video_utils import extract_frames
 from .similarity import compute_similarity
-
+from utils.email_sender import send_alert
 router = APIRouter(
     prefix="/lost-found",
     tags=["Lost & Found AI"]
@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(__file__)
 # ----------------------------------------
 
 # Load camera metadata
-with open(os.path.join(BASE_DIR, "metadata", "camera_mapping.json")) as f:
+with open(os.path.join(BASE_DIR, "../utils/camera_mapping.json")) as f:
     camera_map = json.load(f)
 
 
@@ -76,6 +76,15 @@ async def analyze(
                 "status": "NO_MATCH",
                 "reason": "Camera metadata not found"
             }
+        send_alert(
+    "📍 Lost Item Found",
+    f"""
+Camera ID: {meta['camera_id']}
+Room No: {meta['room_no']}
+Confidence: {round(best_score, 2)}
+Timestamp: {round(float(best_timestamp), 2)} sec
+"""
+)
 
         return {
             "status": "MATCH_FOUND",

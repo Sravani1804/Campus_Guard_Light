@@ -1,0 +1,39 @@
+{
+  "cctv1.mp4": {
+    "camera_id": "CCTV_01",
+    "room_no": "Library - First Floor"
+  },
+  "cctv2.mp4": {
+    "camera_id": "CCTV_02",
+    "room_no": "Lab 203"
+  },
+  "cctv3.mp4": {
+    "camera_id": "CCTV_03",
+    "room_no": "Lab 204"
+  },
+  "cctv4.mp4": {
+    "camera_id": "CCTV_04",
+    "room_no": "Lab 205"
+  },
+  "cctv5.mp4": {
+    "camera_id": "CCTV_05",
+    "room_no": "Lab 206"
+  },
+  "cctv6.mp4": {
+    "camera_id": "CCTV_06",
+    "room_no": "Lab 207"
+  },
+  "cctv7.mp4": {
+    "camera_id": "CCTV_07",
+    "room_no": "Lab 208"
+  },
+  "cctv8.mp4": {
+    "camera_id": "CCTV_08",
+    "room_no": "Lab 209"
+  },
+  "cctv9.mp4": {
+    "camera_id": "CCTV_09",
+    "room_no": "Lab 210"
+  }
+
+}
