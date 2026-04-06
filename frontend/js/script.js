@@ -62,14 +62,14 @@ function detectViolence() {
   const result = document.getElementById("violenceResult");
 
   if (!fileInput.files.length) {
-    result.innerText = "⚠️ Upload video";
+    result.innerHTML = "⚠️ Please upload a video";
     return;
   }
 
   const formData = new FormData();
   formData.append("file", fileInput.files[0]);
 
-  result.innerText = "⏳ Processing video...";
+  result.innerHTML = "⏳ <b>Analyzing video...</b>";
 
   fetch("http://127.0.0.1:8000/violence/predict", {
     method: "POST",
@@ -77,15 +77,35 @@ function detectViolence() {
   })
     .then(res => res.json())
     .then(data => {
+
       if (data.error) {
-        result.innerText = "❌ " + data.error;
+        result.innerHTML = `❌ <b>Error:</b> ${data.error}`;
         return;
       }
 
-      result.innerText = "Result: " + data.result;
+      // 🚨 VIOLENCE DETECTED
+      if (data.result === "Violence Detected") {
+        result.innerHTML = `
+🚨 <b style="color:red;">VIOLENCE DETECTED</b><br>
+Camera ID : ${data.camera}<br>
+Room No   : ${data.room}<br>
+Confidence: ${data.confidence}
+`;
+      }
+
+      // ✅ NO VIOLENCE
+      else {
+        result.innerHTML = `
+✅ <b style="color:green;">NO VIOLENCE</b><br>
+Camera ID : ${data.camera}<br>
+Room No   : ${data.room}<br>
+Confidence: ${data.confidence}
+`;
+      }
+
     })
     .catch(() => {
-      result.innerText = "❌ Backend error";
+      result.innerHTML = "❌ Backend not reachable";
     });
 }
 

@@ -32,14 +32,20 @@
 <section class="demo-grid reveal">
 
   <!-- Violence Detection -->
- <div class="demo-card gradient-red">
+ <!-- Violence Detection -->
+<div class="demo-card gradient-red">
   <h3>🎥 Violence Detection</h3>
 
+  <!-- File Upload -->
   <input type="file" id="violenceVideo" accept="video/*">
 
+  <!-- Button -->
   <button class="btn" onclick="detectViolence()">Analyze Video</button>
 
-  <p id="violenceResult">Status: Waiting...</p>
+  <!-- Result Display -->
+  <p id="violenceResult" class="result-text">
+    Status: Waiting for input...
+  </p>
 </div>
 
 <!-- Lost & Found -->
