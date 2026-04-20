@@ -3,15 +3,11 @@ import speech_recognition as sr
 from pydub import AudioSegment
 import os
 import uuid
-import pickle
 import re
 
 router = APIRouter(prefix="/keyword", tags=["Keyword Detection"])
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-model = pickle.load(open(os.path.join(BASE_DIR, "model/emergency_model.pkl"), "rb"))
-vectorizer = pickle.load(open(os.path.join(BASE_DIR, "model/vectorizer.pkl"), "rb"))
+# 🔥 Removed ML model loading (no pickle, no vectorizer)
 
 emergency_keywords = [
     "help", "save me", "danger", "emergency", "attack",
@@ -30,6 +26,7 @@ def convert_to_wav(input_path):
 async def predict_audio(file: UploadFile = File(...)):
     temp_name = f"temp_{uuid.uuid4()}.webm"
 
+    # Save uploaded file
     with open(temp_name, "wb") as f:
         f.write(await file.read())
 
@@ -47,18 +44,19 @@ async def predict_audio(file: UploadFile = File(...)):
     clean_text = re.sub(r"[^a-zA-Z ]", "", text.lower())
 
     if clean_text.strip() == "":
+        os.remove(temp_name)
+        os.remove(wav_path)
         return {"prediction": "NORMAL", "recognized_text": ""}
 
-    X = vectorizer.transform([clean_text])
-    proba = model.predict_proba(X)[0][1]
-
+    # 🔥 Simple keyword-based detection (no ML)
     keyword_found = any(word in clean_text for word in emergency_keywords)
 
-    if proba > 0.75 and keyword_found:
+    if keyword_found:
         prediction = "EMERGENCY"
     else:
         prediction = "NORMAL"
 
+    # Cleanup temp files
     os.remove(temp_name)
     os.remove(wav_path)
 
