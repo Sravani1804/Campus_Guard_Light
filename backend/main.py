@@ -20,6 +20,7 @@ app.add_middleware(
     
 )
 
+
 # INCLUDE ALL ROUTERS
 app.include_router(lost_found_router)
 app.include_router(keyword_router)
@@ -28,6 +29,13 @@ app.include_router(keyword_router)
 app.include_router(abusive_router, prefix="/abuse", tags=["Abuse Detection"])
 app.include_router(violence_router)
 
+import os
+import uvicorn
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+    
 # ROOT
 @app.get("/")
 def home():
