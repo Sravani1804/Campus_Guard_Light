@@ -1,10 +1,6 @@
-import joblib
+# 🔥 Lightweight version (No ML model, safe for deployment)
 
-# Load model + vectorizer
-model = joblib.load("abusive_detection/abusive_model.pkl")
-vectoriser = joblib.load("abusive_detection/abuse_vectoriser.pkl")
-
-# Custom abusive words
+# Custom abusive words list
 custom_abusive_words = [
     "waste fellow",
     "useless",
@@ -16,15 +12,20 @@ custom_abusive_words = [
     "shut up"
 ]
 
-def predict(text):
+def predict(text: str):
+    """
+    Simple rule-based abusive detection
+    Works without ML model (safe for Render deployment)
+    """
+
+    if not text:
+        return "Normal"
+
     text_lower = text.lower()
 
-    # Rule-based override
+    # Check for abusive keywords
     for word in custom_abusive_words:
         if word in text_lower:
             return "Abusive"
 
-    vec = vectoriser.transform([text])
-    result = model.predict(vec)[0]
-
-    return "Abusive" if result == 1 else "Normal"
+    return "Normal"
