@@ -7,9 +7,7 @@ venv/
 .env
 
 # ML models & large files
-*.pth
-*.pt
-*.h5
+
 
 # Videos & images (datasets)
 *.mp4
@@ -30,7 +28,7 @@ __pycache__/
 *.pyc
 
 # ML models
-*.pkl
+
 
 # Audio files
 *.wav
@@ -47,7 +45,7 @@ backend/keyword_detection_backend/test_train_model/
 *.wav
 
 # ML models
-*.pkl
+
 
 # Python cache
 __pycache__/
