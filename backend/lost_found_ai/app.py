@@ -18,25 +18,31 @@ def extract_features(image: Image.Image):
     image = np.array(image)
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    orb = cv2.ORB_create()
+    orb = cv2.ORB_create(nfeatures=1000)  # 🔥 more features
     keypoints, descriptors = orb.detectAndCompute(gray, None)
 
     return descriptors
 
 
-# ---------------- SIMILARITY ----------------
-def compute_similarity(desc1, desc2):
+# ---------------- IMPROVED MATCHING (RATIO TEST) ----------------
+def compute_good_matches(desc1, desc2):
     if desc1 is None or desc2 is None:
         return 0
 
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-    matches = bf.match(desc1, desc2)
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING)
 
-    return len(matches)
+    matches = bf.knnMatch(desc1, desc2, k=2)
+
+    good = []
+    for m, n in matches:
+        if m.distance < 0.75 * n.distance:  # 🔥 ratio test
+            good.append(m)
+
+    return len(good)
 
 
 # ---------------- FRAME EXTRACTION ----------------
-def extract_frames(video_path, interval=30):
+def extract_frames(video_path, interval=20):  # 🔥 more frames
     cap = cv2.VideoCapture(video_path)
     frames = []
     count = 0
@@ -83,24 +89,27 @@ async def analyze(
 
     best_score = 0
     best_timestamp = 0
-    match_found = False
+    match_count = 0
+
+    # 🔥 STRICT THRESHOLDS
+    GOOD_MATCH_THRESHOLD = 25
+    REQUIRED_MATCH_FRAMES = 2
 
     for frame, timestamp in frames:
         img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         frame_desc = extract_features(img)
 
-        score = compute_similarity(lost_desc, frame_desc)
+        score = compute_good_matches(lost_desc, frame_desc)
 
         if score > best_score:
             best_score = score
             best_timestamp = timestamp
 
-        # 🔥 Threshold (tune if needed)
-        if score > 30:
-            match_found = True
+        if score > GOOD_MATCH_THRESHOLD:
+            match_count += 1
 
-    # ---------------- RESULT ----------------
-    if match_found:
+    # ---------------- FINAL RESULT ----------------
+    if match_count >= REQUIRED_MATCH_FRAMES:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
