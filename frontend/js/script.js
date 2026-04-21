@@ -1,6 +1,8 @@
 /* =========================================================
-   CAMPUSGUARD MAIN SCRIPT (CLEAN + UPDATED)
+   CAMPUSGUARD MAIN SCRIPT (PRODUCTION READY)
    ========================================================= */
+
+const BASE_URL = "https://campus-guard-light.onrender.com";
 
 /* ---------------- LOST & FOUND ---------------- */
 async function findLostItem(event, btn) {
@@ -25,13 +27,10 @@ async function findLostItem(event, btn) {
   btn.disabled = true;
 
   try {
-    const response = await fetch(
-      "http://127.0.0.1:8000/lost-found/analyze",
-      {
-        method: "POST",
-        body: formData
-      }
-    );
+    const response = await fetch(`${BASE_URL}/lost-found/analyze`, {
+      method: "POST",
+      body: formData
+    });
 
     const data = await response.json();
 
@@ -56,7 +55,7 @@ The object was not detected in the given CCTV footage.`;
 }
 
 
-/* ---------------- VIOLENCE & ABUSE (PLACEHOLDER) ---------------- */
+/* ---------------- VIOLENCE ---------------- */
 function detectViolence() {
   const fileInput = document.getElementById("violenceVideo");
   const result = document.getElementById("violenceResult");
@@ -71,7 +70,7 @@ function detectViolence() {
 
   result.innerHTML = "⏳ <b>Analyzing video...</b>";
 
-  fetch("http://127.0.0.1:8000/violence/predict", {
+  fetch(`${BASE_URL}/violence/predict`, {
     method: "POST",
     body: formData
   })
@@ -83,24 +82,14 @@ function detectViolence() {
         return;
       }
 
-      // 🚨 VIOLENCE DETECTED
       if (data.result === "Violence Detected") {
         result.innerHTML = `
 🚨 <b style="color:red;">VIOLENCE DETECTED</b><br>
-Camera ID : ${data.camera}<br>
-Room No   : ${data.room}<br>
-Confidence: ${data.confidence}
-`;
-      }
-
-      // ✅ NO VIOLENCE
-      else {
+Confidence: ${data.confidence}`;
+      } else {
         result.innerHTML = `
 ✅ <b style="color:green;">NO VIOLENCE</b><br>
-Camera ID : ${data.camera}<br>
-Room No   : ${data.room}<br>
-Confidence: ${data.confidence}
-`;
+Confidence: ${data.confidence}`;
       }
 
     })
@@ -110,42 +99,24 @@ Confidence: ${data.confidence}
 }
 
 
-/* =========================================================
-   🚨 KEYWORD DETECTION (UPLOAD + LIVE RECORDING)
-   ========================================================= */
+/* ---------------- KEYWORD DETECTION ---------------- */
 
 let mediaRecorder;
 let audioChunks = [];
 
-/* -------- START RECORDING -------- */
 function startRecording() {
   audioChunks = [];
-
-  const status = document.getElementById("emergencyStatus");
-  status.innerText = "Status: Recording...";
+  document.getElementById("emergencyStatus").innerText = "Recording...";
 
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
       mediaRecorder = new MediaRecorder(stream);
       mediaRecorder.start();
-
-      mediaRecorder.ondataavailable = e => {
-        audioChunks.push(e.data);
-      };
-    })
-    .catch(() => {
-      status.innerText = "Status: Mic permission denied";
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
     });
 }
 
-
-/* -------- STOP RECORDING -------- */
 function stopRecording() {
-  if (!mediaRecorder) return;
-
-  const status = document.getElementById("emergencyStatus");
-  status.innerText = "Status: Processing...";
-
   mediaRecorder.stop();
 
   mediaRecorder.onstop = () => {
@@ -154,87 +125,64 @@ function stopRecording() {
   };
 }
 
-
-/* -------- FILE UPLOAD -------- */
 function detectEmergency() {
   const fileInput = document.getElementById("emergencyAudio");
 
   if (!fileInput.files.length) {
-    alert("Please select an audio file");
+    alert("Please select audio");
     return;
   }
 
   sendEmergencyAudio(fileInput.files[0]);
 }
 
-
-/* -------- COMMON BACKEND CALL -------- */
 function sendEmergencyAudio(audioBlob) {
   const status = document.getElementById("emergencyStatus");
   const result = document.getElementById("emergencyResult");
 
-  status.innerText = "Status: Processing...";
+  status.innerText = "Processing...";
   result.innerText = "";
 
   const formData = new FormData();
   formData.append("file", audioBlob);
 
-  fetch("http://127.0.0.1:8000/keyword/predict-audio", {
+  fetch(`${BASE_URL}/keyword/predict-audio`, {
     method: "POST",
     body: formData
   })
     .then(res => res.json())
     .then(data => {
-      status.innerText = "Status: Done";
-
-      const text = data.recognized_text || data.text || "N/A";
-      const prediction = data.prediction || data.result || "N/A";
+      status.innerText = "Done";
 
       result.innerHTML =
-        `🗣 <b>Text:</b> ${text}<br>🚨 <b>Result:</b> ${prediction}`;
+        `🗣 ${data.recognized_text || "N/A"} <br>
+🚨 ${data.prediction}`;
     })
     .catch(() => {
-      status.innerText = "Status: Error";
+      status.innerText = "Error";
       result.innerText = "❌ Backend not reachable";
     });
 }
 
-/* =========================================================
-   🗣 ABUSIVE DETECTION (UPLOAD + LIVE RECORDING)
-   ========================================================= */
+
+/* ---------------- ABUSE DETECTION ---------------- */
 
 let abuseRecorder;
 let abuseChunks = [];
 
-/* -------- START RECORDING -------- */
 function startAbuseRecording() {
   abuseChunks = [];
-
-  const status = document.getElementById("abuseStatus");
-  status.innerText = "Status: Recording...";
+  document.getElementById("abuseStatus").innerText = "Recording...";
 
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
       abuseRecorder = new MediaRecorder(stream);
       abuseRecorder.start();
-
-      abuseRecorder.ondataavailable = e => {
-        abuseChunks.push(e.data);
-      };
-    })
-    .catch(() => {
-      status.innerText = "Status: Mic permission denied";
+      abuseRecorder.ondataavailable = e => abuseChunks.push(e.data);
     });
 }
 
-
-/* -------- STOP RECORDING -------- */
 function stopAbuseRecording() {
-  if (!abuseRecorder) return;
-
-  const status = document.getElementById("abuseStatus");
-  status.innerText = "Status: Processing...";
-
   abuseRecorder.stop();
 
   abuseRecorder.onstop = () => {
@@ -243,56 +191,47 @@ function stopAbuseRecording() {
   };
 }
 
-
-/* -------- FILE UPLOAD -------- */
 function detectAbuse() {
   const fileInput = document.getElementById("abuseAudio");
 
   if (!fileInput.files.length) {
-    alert("Please select an audio file");
+    alert("Select audio");
     return;
   }
 
   sendAbuseAudio(fileInput.files[0]);
 }
 
-
-/* -------- COMMON BACKEND CALL -------- */
 function sendAbuseAudio(audioBlob) {
   const status = document.getElementById("abuseStatus");
   const result = document.getElementById("abuseResult");
 
-  status.innerText = "Status: Processing...";
+  status.innerText = "Processing...";
   result.innerText = "";
 
   const formData = new FormData();
   formData.append("file", audioBlob);
 
-  fetch("http://127.0.0.1:8000/abuse/predict-audio", {
+  fetch(`${BASE_URL}/abuse/predict-audio`, {
     method: "POST",
     body: formData
   })
     .then(res => res.json())
     .then(data => {
-      status.innerText = "Status: Done";
-
-      console.log("ABUSE API:", data);
-
-      const text = data.recognized_text || "N/A";
-      const prediction = data.result || "N/A";
+      status.innerText = "Done";
 
       result.innerHTML =
-        `🗣 <b>Text:</b> ${text}<br>⚠️ <b>Result:</b> ${prediction}`;
+        `🗣 ${data.recognized_text || "N/A"} <br>
+⚠️ ${data.result}`;
     })
     .catch(() => {
-      status.innerText = "Status: Error";
+      status.innerText = "Error";
       result.innerText = "❌ Backend not reachable";
     });
 }
 
-/* =========================================================
-   SCROLL ANIMATION
-   ========================================================= */
+
+/* ---------------- SCROLL ANIMATION ---------------- */
 const reveals = document.querySelectorAll(".reveal");
 
 function revealOnScroll() {
