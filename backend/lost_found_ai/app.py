@@ -18,13 +18,13 @@ def extract_features(image: Image.Image):
     image = np.array(image)
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    orb = cv2.ORB_create(nfeatures=1000)  # 🔥 more features
+    orb = cv2.ORB_create(nfeatures=800)  # balanced features
     keypoints, descriptors = orb.detectAndCompute(gray, None)
 
     return descriptors
 
 
-# ---------------- IMPROVED MATCHING (RATIO TEST) ----------------
+# ---------------- MATCHING (RATIO TEST) ----------------
 def compute_good_matches(desc1, desc2):
     if desc1 is None or desc2 is None:
         return 0
@@ -35,14 +35,14 @@ def compute_good_matches(desc1, desc2):
 
     good = []
     for m, n in matches:
-        if m.distance < 0.75 * n.distance:  # 🔥 ratio test
+        if m.distance < 0.8 * n.distance:  # balanced ratio
             good.append(m)
 
     return len(good)
 
 
 # ---------------- FRAME EXTRACTION ----------------
-def extract_frames(video_path, interval=20):  # 🔥 more frames
+def extract_frames(video_path, interval=25):
     cap = cv2.VideoCapture(video_path)
     frames = []
     count = 0
@@ -81,7 +81,7 @@ async def analyze(
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Process lost image
+    # Extract features from lost image
     lost_img = Image.open(lost_path).convert("RGB")
     lost_desc = extract_features(lost_img)
 
@@ -91,9 +91,9 @@ async def analyze(
     best_timestamp = 0
     match_count = 0
 
-    # 🔥 STRICT THRESHOLDS
-    GOOD_MATCH_THRESHOLD = 25
-    REQUIRED_MATCH_FRAMES = 2
+    # 🔥 FINAL BALANCED SETTINGS
+    GOOD_MATCH_THRESHOLD = 12
+    REQUIRED_MATCH_FRAMES = 1
 
     for frame, timestamp in frames:
         img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
