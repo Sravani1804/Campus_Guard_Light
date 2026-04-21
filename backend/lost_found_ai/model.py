@@ -1,5 +1,12 @@
+import cv2
+import numpy as np
 from PIL import Image
 
 def extract_features(image: Image.Image):
-    # Dummy vector
-    return [0] * 2048
+    image = np.array(image)
+    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+    orb = cv2.ORB_create()
+    keypoints, descriptors = orb.detectAndCompute(gray, None)
+
+    return keypoints, descriptors
