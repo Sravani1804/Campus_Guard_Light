@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import random
 
 # 🔥 MODEL DISABLED FOR DEPLOYMENT
 model = None
@@ -37,5 +38,10 @@ def extract_frames(video_path):
 
 
 def predict_violence(video_path):
-    # 🔥 Always return safe response (no heavy model)
-    return "No Violence", 0.0
+    # 🔥 SIMULATED OUTPUT (for demo)
+    score = random.uniform(0.3, 0.95)
+
+    if score > 0.6:
+        return "Violence Detected", round(score, 2)
+    else:
+        return "No Violence", round(score, 2)
