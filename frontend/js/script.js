@@ -1,5 +1,5 @@
 /* =========================================================
-   CAMPUSGUARD MAIN SCRIPT (FINAL WORKING VERSION)
+   CAMPUSGUARD MAIN SCRIPT (FINAL ORB VERSION)
    ========================================================= */
 
 const BASE_URL = "https://campus-guard-light.onrender.com";
@@ -12,16 +12,18 @@ async function findLostItem(event, btn) {
   const resultSpan = card.querySelector(".result span");
 
   const image = document.getElementById("lostImage").files[0];
+  const video = document.getElementById("lostVideo").files[0];
 
-  if (!image) {
-    resultSpan.innerText = "⚠️ Please upload an image";
+  if (!image || !video) {
+    resultSpan.innerText = "⚠️ Please upload image & video";
     return;
   }
 
   const formData = new FormData();
-  formData.append("file", image);   // ✅ FIXED
+  formData.append("lost_image", image);   // ✅ IMPORTANT
+  formData.append("video", video);        // ✅ IMPORTANT
 
-  resultSpan.innerText = "⏳ Processing request...";
+  resultSpan.innerText = "⏳ Processing...";
   btn.disabled = true;
 
   try {
@@ -31,6 +33,7 @@ async function findLostItem(event, btn) {
     });
 
     const data = await response.json();
+    console.log(data);  // 🔍 debug
 
     if (data.status === "MATCH_FOUND") {
       resultSpan.innerText =
@@ -40,7 +43,9 @@ Room No   : ${data.room_no}
 Confidence: ${data.confidence}
 Timestamp : ${data.timestamp} sec`;
     } else {
-      resultSpan.innerText = "❌ NO MATCH FOUND";
+      resultSpan.innerText =
+`❌ NO MATCH FOUND
+Confidence: ${data.confidence}`;
     }
 
   } catch (err) {
