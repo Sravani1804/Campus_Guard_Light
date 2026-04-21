@@ -1,5 +1,5 @@
 /* =========================================================
-   CAMPUSGUARD MAIN SCRIPT (PRODUCTION READY)
+   CAMPUSGUARD MAIN SCRIPT (FINAL WORKING VERSION)
    ========================================================= */
 
 const BASE_URL = "https://campus-guard-light.onrender.com";
@@ -12,16 +12,14 @@ async function findLostItem(event, btn) {
   const resultSpan = card.querySelector(".result span");
 
   const image = document.getElementById("lostImage").files[0];
-  const video = document.getElementById("lostVideo").files[0];
 
-  if (!image || !video) {
-    resultSpan.innerText = "⚠️ Please upload both image and video";
+  if (!image) {
+    resultSpan.innerText = "⚠️ Please upload an image";
     return;
   }
 
   const formData = new FormData();
-  formData.append("lost_image", image);
-  formData.append("video", video);
+  formData.append("file", image);   // ✅ FIXED
 
   resultSpan.innerText = "⏳ Processing request...";
   btn.disabled = true;
@@ -40,11 +38,9 @@ async function findLostItem(event, btn) {
 Camera ID : ${data.camera_id}
 Room No   : ${data.room_no}
 Confidence: ${data.confidence}
-Timestamp : ${data.timestamp} seconds`;
+Timestamp : ${data.timestamp} sec`;
     } else {
-      resultSpan.innerHTML = `
-❌ NO MATCH FOUND <br>
-The object was not detected in the given CCTV footage.`;
+      resultSpan.innerText = "❌ NO MATCH FOUND";
     }
 
   } catch (err) {
@@ -76,11 +72,6 @@ function detectViolence() {
   })
     .then(res => res.json())
     .then(data => {
-
-      if (data.error) {
-        result.innerHTML = `❌ <b>Error:</b> ${data.error}`;
-        return;
-      }
 
       if (data.result === "Violence Detected") {
         result.innerHTML = `
@@ -232,6 +223,7 @@ function sendAbuseAudio(audioBlob) {
 
 
 /* ---------------- SCROLL ANIMATION ---------------- */
+
 const reveals = document.querySelectorAll(".reveal");
 
 function revealOnScroll() {
