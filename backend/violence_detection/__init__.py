@@ -3,7 +3,7 @@ import numpy as np
 from .utils import extract_frames
 
 # Load model once
-model = load_model("violence_detection/violence_model.h5")
+model = None
 
 def predict_violence(video_path):
     frames = extract_frames(video_path)
