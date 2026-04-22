@@ -103,12 +103,6 @@ async def analyze(
 
     best_score = 0
     best_timestamp = 0
-    match_count = 0
-
-    # 🔥 FINAL TUNED VALUES
-    ORB_THRESHOLD = 15
-    COLOR_THRESHOLD = 0.6
-    REQUIRED_MATCH_FRAMES = 2
 
     for frame, timestamp in frames:
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -118,25 +112,24 @@ async def analyze(
         o_score = orb_score(lost_desc, frame_desc)
         c_score = color_similarity(lost_np, frame_rgb)
 
-        if o_score > best_score:
-            best_score = o_score
+        # 🔥 FINAL SMART SCORING (MOST IMPORTANT)
+        final_score = (o_score * 0.7) + (c_score * 30)
+
+        if final_score > best_score:
+            best_score = final_score
             best_timestamp = timestamp
 
-        # 🔥 STRICT CONDITION (both required)
-        if o_score > ORB_THRESHOLD and c_score > COLOR_THRESHOLD:
-            match_count += 1
-
-    # ---------------- FINAL RESULT ----------------
-    if match_count >= REQUIRED_MATCH_FRAMES:
+    # 🔥 FINAL DECISION (BALANCED)
+    if best_score > 20:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
             "room_no": "Block B - Room 205",
-            "confidence": int(best_score),
+            "confidence": round(best_score, 2),
             "timestamp": round(best_timestamp, 2)
         }
 
     return {
         "status": "NO_MATCH",
-        "confidence": int(best_score)
+        "confidence": round(best_score, 2)
     }
