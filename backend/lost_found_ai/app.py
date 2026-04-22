@@ -32,8 +32,8 @@ def extract_frames(video_path, interval=15):
     return frames
 
 
-# ---------------- ORB MATCHING ----------------
-def orb_match_score(img1, img2):
+# ---------------- GOOD MATCHES USING RATIO TEST ----------------
+def orb_good_matches(img1, img2):
     orb = cv2.ORB_create(nfeatures=1000)
 
     kp1, des1 = orb.detectAndCompute(img1, None)
@@ -42,13 +42,16 @@ def orb_match_score(img1, img2):
     if des1 is None or des2 is None:
         return 0
 
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-    matches = bf.match(des1, des2)
+    bf = cv2.BFMatcher(cv2.NORM_HAMMING)
 
-    # Sort matches (best first)
-    matches = sorted(matches, key=lambda x: x.distance)
+    matches = bf.knnMatch(des1, des2, k=2)
 
-    return len(matches)
+    good = []
+    for m, n in matches:
+        if m.distance < 0.75 * n.distance:   # 🔥 KEY FIX
+            good.append(m)
+
+    return len(good)
 
 
 # ---------------- MAIN API ----------------
@@ -70,7 +73,7 @@ async def analyze(
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Load images
+    # Load lost image
     lost_img = cv2.imread(lost_path, cv2.IMREAD_GRAYSCALE)
 
     frames = extract_frames(video_path)
@@ -81,14 +84,14 @@ async def analyze(
     for frame, timestamp in frames:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        matches = orb_match_score(lost_img, gray)
+        matches = orb_good_matches(lost_img, gray)
 
         if matches > best_matches:
             best_matches = matches
             best_timestamp = timestamp
 
-    # 🔥 FINAL DECISION (VERY IMPORTANT)
-    if best_matches > 25:
+    # 🔥 FINAL STRICT DECISION
+    if best_matches > 12:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
