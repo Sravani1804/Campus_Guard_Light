@@ -13,9 +13,26 @@ router = APIRouter(
 
 BASE_DIR = os.path.dirname(__file__)
 
-# Load camera metadata
 with open(os.path.join(BASE_DIR, "../utils/camera_mapping.json")) as f:
     camera_map = json.load(f)
+
+
+# 🔥 NEW: small region search (very important)
+def get_candidate_regions(frame):
+    h, w, _ = frame.shape
+    regions = []
+
+    # center crop
+    regions.append(frame[h//4:3*h//4, w//4:3*w//4])
+
+    # 4 corners (small windows)
+    size = min(h, w) // 2
+    regions.append(frame[0:size, 0:size])
+    regions.append(frame[0:size, w-size:w])
+    regions.append(frame[h-size:h, 0:size])
+    regions.append(frame[h-size:h, w-size:w])
+
+    return regions
 
 
 @router.post("/analyze")
@@ -46,20 +63,25 @@ async def analyze(
     best_timestamp = 0
 
     for frame, timestamp in frames:
-        img = Image.fromarray(
-            cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        )
 
-        frame_desc = extract_features(img)
+        # 🔥 check multiple regions instead of full frame
+        regions = get_candidate_regions(frame)
 
-        score = compute_similarity(lost_desc, frame_desc)
+        for region in regions:
+            img = Image.fromarray(
+                cv2.cvtColor(region, cv2.COLOR_BGR2RGB)
+            )
 
-        if score > best_score:
-            best_score = score
-            best_timestamp = timestamp
+            region_desc = extract_features(img)
 
-    # 🔥 FINAL DECISION (TUNED)
-    if best_score > 15:
+            score = compute_similarity(lost_desc, region_desc)
+
+            if score > best_score:
+                best_score = score
+                best_timestamp = timestamp
+
+    # 🔥 FINAL DECISION (tuned for your case)
+    if best_score > 12:
         meta = list(camera_map.values())[0]
 
         return {
@@ -67,7 +89,7 @@ async def analyze(
             "camera_id": meta["camera_id"],
             "room_no": meta["room_no"],
             "confidence": int(best_score),
-            "timestamp": round(float(best_timestamp), 2)
+            "timestamp": round(best_timestamp, 2)
         }
 
     return {
