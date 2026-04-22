@@ -13,6 +13,7 @@ router = APIRouter(
 
 BASE_DIR = os.path.dirname(__file__)
 
+# Load camera metadata
 with open(os.path.join(BASE_DIR, "../utils/camera_mapping.json")) as f:
     camera_map = json.load(f)
 
@@ -35,7 +36,7 @@ async def analyze(
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Extract lost image features
+    # Extract features from lost image
     lost_img = Image.open(lost_path).convert("RGB")
     kp1, des1 = extract_features(lost_img)
 
@@ -45,9 +46,15 @@ async def analyze(
     best_timestamp = 0
 
     for frame, timestamp in frames:
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        kp2, des2 = extract_features(Image.fromarray(gray))
+        # 🔥 FIX: always convert to RGB properly
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        kp2, des2 = extract_features(Image.fromarray(rgb_frame))
+
+        # 🔥 safety check (prevents crash)
+        if des2 is None or kp2 is None or len(kp2) < 5:
+            continue
 
         score = compute_similarity(kp1, des1, kp2, des2)
 
@@ -55,7 +62,7 @@ async def analyze(
             best_score = score
             best_timestamp = timestamp
 
-    # 🔥 FINAL DECISION
+    # 🔥 FINAL DECISION (TUNED)
     if best_score > 10:
         meta = list(camera_map.values())[0]
 
