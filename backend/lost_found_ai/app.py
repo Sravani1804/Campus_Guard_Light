@@ -13,18 +13,17 @@ router = APIRouter(
 BASE_DIR = os.path.dirname(__file__)
 
 
-# ---------------- ORB FEATURE EXTRACTION ----------------
+# ---------------- ORB ----------------
 def extract_orb(image):
     image = np.array(image)
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    orb = cv2.ORB_create(nfeatures=800)
+    orb = cv2.ORB_create(nfeatures=1000)
     kp, desc = orb.detectAndCompute(gray, None)
 
     return desc
 
 
-# ---------------- ORB MATCHING ----------------
 def orb_score(desc1, desc2):
     if desc1 is None or desc2 is None:
         return 0
@@ -40,7 +39,7 @@ def orb_score(desc1, desc2):
     return len(good)
 
 
-# ---------------- COLOR SIMILARITY ----------------
+# ---------------- COLOR ----------------
 def color_similarity(img1, img2):
     img1 = cv2.resize(img1, (100, 100))
     img2 = cv2.resize(img2, (100, 100))
@@ -54,7 +53,7 @@ def color_similarity(img1, img2):
     return cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
 
 
-# ---------------- FRAME EXTRACTION ----------------
+# ---------------- FRAMES ----------------
 def extract_frames(video_path, interval=25):
     cap = cv2.VideoCapture(video_path)
     frames = []
@@ -75,7 +74,7 @@ def extract_frames(video_path, interval=25):
     return frames
 
 
-# ---------------- MAIN API ----------------
+# ---------------- MAIN ----------------
 @router.post("/analyze")
 async def analyze(
     lost_image: UploadFile = File(...),
@@ -87,22 +86,24 @@ async def analyze(
     lost_path = os.path.join(temp_dir, "lost.jpg")
     video_path = os.path.join(temp_dir, "video.mp4")
 
-    # Save files
     with open(lost_path, "wb") as f:
         shutil.copyfileobj(lost_image.file, f)
 
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Load lost image
     lost_img = Image.open(lost_path).convert("RGB")
     lost_np = np.array(lost_img)
     lost_desc = extract_orb(lost_img)
 
     frames = extract_frames(video_path)
 
-    best_score = 0
+    best_orb = 0
     best_timestamp = 0
+
+    # 🔥 FINAL STRICT THRESHOLDS
+    ORB_THRESHOLD = 12
+    COLOR_MIN = 0.4   # just filter, not main
 
     for frame, timestamp in frames:
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -112,24 +113,22 @@ async def analyze(
         o_score = orb_score(lost_desc, frame_desc)
         c_score = color_similarity(lost_np, frame_rgb)
 
-        # 🔥 FINAL SMART SCORING (MOST IMPORTANT)
-        final_score = (o_score * 0.7) + (c_score * 30)
-
-        if final_score > best_score:
-            best_score = final_score
+        # track best ORB
+        if o_score > best_orb:
+            best_orb = o_score
             best_timestamp = timestamp
 
-    # 🔥 FINAL DECISION (BALANCED)
-    if best_score > 20:
-        return {
-            "status": "MATCH_FOUND",
-            "camera_id": "Camera 2",
-            "room_no": "Block B - Room 205",
-            "confidence": round(best_score, 2),
-            "timestamp": round(best_timestamp, 2)
-        }
+        # 🔥 KEY FIX: ORB is main, color is filter
+        if o_score > ORB_THRESHOLD and c_score > COLOR_MIN:
+            return {
+                "status": "MATCH_FOUND",
+                "camera_id": "Camera 2",
+                "room_no": "Block B - Room 205",
+                "confidence": int(o_score),
+                "timestamp": round(timestamp, 2)
+            }
 
     return {
         "status": "NO_MATCH",
-        "confidence": round(best_score, 2)
+        "confidence": int(best_orb)
     }
