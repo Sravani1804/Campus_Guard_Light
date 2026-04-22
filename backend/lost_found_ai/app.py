@@ -32,8 +32,8 @@ def extract_frames(video_path, interval=15):
     return frames
 
 
-# ---------------- GOOD MATCHES USING RATIO TEST ----------------
-def orb_good_matches(img1, img2):
+# ---------------- ORB GOOD MATCH RATIO ----------------
+def orb_match_ratio(img1, img2):
     orb = cv2.ORB_create(nfeatures=1000)
 
     kp1, des1 = orb.detectAndCompute(img1, None)
@@ -43,15 +43,39 @@ def orb_good_matches(img1, img2):
         return 0
 
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
-
     matches = bf.knnMatch(des1, des2, k=2)
 
     good = []
     for m, n in matches:
-        if m.distance < 0.75 * n.distance:   # 🔥 KEY FIX
+        if m.distance < 0.75 * n.distance:
             good.append(m)
 
-    return len(good)
+    # 🔥 KEY: ratio instead of count
+    return len(good) / len(matches) if len(matches) > 0 else 0
+
+
+# ---------------- SLIDING WINDOW ----------------
+def find_best_match(lost_img, frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    h, w = gray.shape
+
+    best_ratio = 0
+
+    for size in [100, 150, 200]:
+        if size > h or size > w:
+            continue
+
+        for y in range(0, h - size, 40):
+            for x in range(0, w - size, 40):
+
+                crop = gray[y:y+size, x:x+size]
+
+                ratio = orb_match_ratio(lost_img, crop)
+
+                if ratio > best_ratio:
+                    best_ratio = ratio
+
+    return best_ratio
 
 
 # ---------------- MAIN API ----------------
@@ -78,29 +102,27 @@ async def analyze(
 
     frames = extract_frames(video_path)
 
-    best_matches = 0
+    best_ratio = 0
     best_timestamp = 0
 
     for frame, timestamp in frames:
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        ratio = find_best_match(lost_img, frame)
 
-        matches = orb_good_matches(lost_img, gray)
-
-        if matches > best_matches:
-            best_matches = matches
+        if ratio > best_ratio:
+            best_ratio = ratio
             best_timestamp = timestamp
 
-    # 🔥 FINAL STRICT DECISION
-    if best_matches > 12:
+    # 🔥 FINAL DECISION (THIS IS THE MAGIC NUMBER)
+    if best_ratio > 0.15:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
             "room_no": "Block B - Room 205",
-            "confidence": int(best_matches),
+            "confidence": round(best_ratio, 2),
             "timestamp": round(best_timestamp, 2)
         }
 
     return {
         "status": "NO_MATCH",
-        "confidence": int(best_matches)
+        "confidence": round(best_ratio, 2)
     }
