@@ -3,7 +3,6 @@ import os
 import shutil
 import cv2
 import numpy as np
-from PIL import Image
 
 router = APIRouter(
     prefix="/lost-found",
@@ -34,15 +33,33 @@ def extract_frames(video_path, interval=20):
     return frames
 
 
-# ---------------- SIMPLE IMAGE SIMILARITY ----------------
-def image_similarity(img1, img2):
+# ---------------- IMAGE SIMILARITY ----------------
+def similarity(img1, img2):
     img1 = cv2.resize(img1, (128, 128))
     img2 = cv2.resize(img2, (128, 128))
 
     diff = cv2.absdiff(img1, img2)
-    score = np.mean(diff)
+    return np.mean(diff)
 
-    return score
+
+# ---------------- SLIDING WINDOW ----------------
+def find_best_match(lost_img, frame):
+    h, w, _ = frame.shape
+
+    best_score = float("inf")
+
+    # slide window
+    for y in range(0, h - 100, 50):
+        for x in range(0, w - 100, 50):
+
+            crop = frame[y:y+100, x:x+100]
+
+            score = similarity(lost_img, crop)
+
+            if score < best_score:
+                best_score = score
+
+    return best_score
 
 
 # ---------------- MAIN API ----------------
@@ -64,7 +81,6 @@ async def analyze(
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Load lost image
     lost_img = cv2.imread(lost_path)
 
     frames = extract_frames(video_path)
@@ -73,15 +89,14 @@ async def analyze(
     best_timestamp = 0
 
     for frame, timestamp in frames:
-        score = image_similarity(lost_img, frame)
+        score = find_best_match(lost_img, frame)
 
         if score < best_score:
             best_score = score
             best_timestamp = timestamp
 
     # 🔥 FINAL DECISION
-    # lower score = more similar
-    if best_score < 40:
+    if best_score < 35:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
