@@ -13,32 +13,45 @@ router = APIRouter(
 BASE_DIR = os.path.dirname(__file__)
 
 
-# ---------------- ORB FEATURE EXTRACTION ----------------
-def extract_features(image: Image.Image):
+# ---------------- ORB FEATURES ----------------
+def extract_orb(image):
     image = np.array(image)
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    orb = cv2.ORB_create(nfeatures=800)  # balanced features
-    keypoints, descriptors = orb.detectAndCompute(gray, None)
+    orb = cv2.ORB_create(nfeatures=800)
+    kp, desc = orb.detectAndCompute(gray, None)
 
-    return descriptors
+    return desc
 
 
-# ---------------- MATCHING (RATIO TEST) ----------------
-def compute_good_matches(desc1, desc2):
+# ---------------- ORB MATCH ----------------
+def orb_score(desc1, desc2):
     if desc1 is None or desc2 is None:
         return 0
 
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
-
     matches = bf.knnMatch(desc1, desc2, k=2)
 
     good = []
     for m, n in matches:
-        if m.distance < 0.8 * n.distance:  # balanced ratio
+        if m.distance < 0.8 * n.distance:
             good.append(m)
 
     return len(good)
+
+
+# ---------------- COLOR SIMILARITY ----------------
+def color_similarity(img1, img2):
+    img1 = cv2.resize(img1, (100, 100))
+    img2 = cv2.resize(img2, (100, 100))
+
+    hist1 = cv2.calcHist([img1], [0,1,2], None, [8,8,8], [0,256]*3)
+    hist2 = cv2.calcHist([img2], [0,1,2], None, [8,8,8], [0,256]*3)
+
+    cv2.normalize(hist1, hist1)
+    cv2.normalize(hist2, hist2)
+
+    return cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL)
 
 
 # ---------------- FRAME EXTRACTION ----------------
@@ -74,51 +87,54 @@ async def analyze(
     lost_path = os.path.join(temp_dir, "lost.jpg")
     video_path = os.path.join(temp_dir, "video.mp4")
 
-    # Save files
     with open(lost_path, "wb") as f:
         shutil.copyfileobj(lost_image.file, f)
 
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Extract features from lost image
+    # Load lost image
     lost_img = Image.open(lost_path).convert("RGB")
-    lost_desc = extract_features(lost_img)
+    lost_np = np.array(lost_img)
+    lost_desc = extract_orb(lost_img)
 
     frames = extract_frames(video_path)
 
     best_score = 0
     best_timestamp = 0
-    match_count = 0
-
-    # 🔥 FINAL BALANCED SETTINGS
-    GOOD_MATCH_THRESHOLD = 12
-    REQUIRED_MATCH_FRAMES = 1
+    match_found = False
 
     for frame, timestamp in frames:
-        img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        frame_desc = extract_features(img)
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        score = compute_good_matches(lost_desc, frame_desc)
+        # ORB score
+        frame_desc = extract_orb(Image.fromarray(frame_rgb))
+        o_score = orb_score(lost_desc, frame_desc)
 
-        if score > best_score:
-            best_score = score
+        # Color score
+        c_score = color_similarity(lost_np, frame_rgb)
+
+        # 🔥 Combined score
+        final_score = o_score + (c_score * 20)
+
+        if final_score > best_score:
+            best_score = final_score
             best_timestamp = timestamp
 
-        if score > GOOD_MATCH_THRESHOLD:
-            match_count += 1
+        # 🔥 Threshold (balanced)
+        if final_score > 25:
+            match_found = True
 
-    # ---------------- FINAL RESULT ----------------
-    if match_count >= REQUIRED_MATCH_FRAMES:
+    if match_found:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
             "room_no": "Block B - Room 205",
-            "confidence": int(best_score),
+            "confidence": round(best_score, 2),
             "timestamp": round(best_timestamp, 2)
         }
 
     return {
         "status": "NO_MATCH",
-        "confidence": int(best_score)
+        "confidence": round(best_score, 2)
     }
