@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(__file__)
 
 
 # ---------------- FRAME EXTRACTION ----------------
-def extract_frames(video_path, interval=20):
+def extract_frames(video_path, interval=15):
     cap = cv2.VideoCapture(video_path)
     frames = []
     count = 0
@@ -42,22 +42,26 @@ def similarity(img1, img2):
     return np.mean(diff)
 
 
-# ---------------- SLIDING WINDOW ----------------
+# ---------------- MULTI-SCALE MATCHING ----------------
 def find_best_match(lost_img, frame):
     h, w, _ = frame.shape
-
     best_score = float("inf")
 
-    # slide window
-    for y in range(0, h - 100, 50):
-        for x in range(0, w - 100, 50):
+    # 🔥 multiple sizes for better detection
+    for size in [80, 120, 160, 200]:
 
-            crop = frame[y:y+100, x:x+100]
+        if size > h or size > w:
+            continue
 
-            score = similarity(lost_img, crop)
+        for y in range(0, h - size, 40):
+            for x in range(0, w - size, 40):
 
-            if score < best_score:
-                best_score = score
+                crop = frame[y:y+size, x:x+size]
+
+                score = similarity(lost_img, crop)
+
+                if score < best_score:
+                    best_score = score
 
     return best_score
 
@@ -74,13 +78,14 @@ async def analyze(
     lost_path = os.path.join(temp_dir, "lost.jpg")
     video_path = os.path.join(temp_dir, "video.mp4")
 
-    # Save files
+    # Save uploaded files
     with open(lost_path, "wb") as f:
         shutil.copyfileobj(lost_image.file, f)
 
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
+    # Load image
     lost_img = cv2.imread(lost_path)
 
     frames = extract_frames(video_path)
@@ -95,8 +100,8 @@ async def analyze(
             best_score = score
             best_timestamp = timestamp
 
-    # 🔥 FINAL DECISION
-    if best_score < 35:
+    # 🔥 FINAL DECISION (tuned for your case)
+    if best_score < 45:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
