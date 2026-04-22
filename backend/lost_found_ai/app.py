@@ -34,6 +34,17 @@ def extract_frames(video_path, interval=20):
     return frames
 
 
+# ---------------- SIMPLE IMAGE SIMILARITY ----------------
+def image_similarity(img1, img2):
+    img1 = cv2.resize(img1, (128, 128))
+    img2 = cv2.resize(img2, (128, 128))
+
+    diff = cv2.absdiff(img1, img2)
+    score = np.mean(diff)
+
+    return score
+
+
 # ---------------- MAIN API ----------------
 @router.post("/analyze")
 async def analyze(
@@ -53,33 +64,24 @@ async def analyze(
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Load lost image (template)
-    template = cv2.imread(lost_path)
-    template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-
-    h, w = template.shape
+    # Load lost image
+    lost_img = cv2.imread(lost_path)
 
     frames = extract_frames(video_path)
 
-    best_score = 0
+    best_score = float("inf")
     best_timestamp = 0
 
     for frame, timestamp in frames:
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        score = image_similarity(lost_img, frame)
 
-        # Resize frame if too small
-        if gray.shape[0] < h or gray.shape[1] < w:
-            continue
-
-        result = cv2.matchTemplate(gray, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, _ = cv2.minMaxLoc(result)
-
-        if max_val > best_score:
-            best_score = max_val
+        if score < best_score:
+            best_score = score
             best_timestamp = timestamp
 
-    # 🔥 FINAL DECISION (VERY IMPORTANT)
-    if best_score > 0.6:
+    # 🔥 FINAL DECISION
+    # lower score = more similar
+    if best_score < 40:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
