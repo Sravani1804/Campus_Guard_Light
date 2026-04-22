@@ -17,30 +17,12 @@ with open(os.path.join(BASE_DIR, "../utils/camera_mapping.json")) as f:
     camera_map = json.load(f)
 
 
-# 🔥 NEW: small region search (very important)
-def get_candidate_regions(frame):
-    h, w, _ = frame.shape
-    regions = []
-
-    # center crop
-    regions.append(frame[h//4:3*h//4, w//4:3*w//4])
-
-    # 4 corners (small windows)
-    size = min(h, w) // 2
-    regions.append(frame[0:size, 0:size])
-    regions.append(frame[0:size, w-size:w])
-    regions.append(frame[h-size:h, 0:size])
-    regions.append(frame[h-size:h, w-size:w])
-
-    return regions
-
-
 @router.post("/analyze")
 async def analyze(
     lost_image: UploadFile = File(...),
     video: UploadFile = File(...)
 ):
-    temp_dir = os.path.join(BASE_DIR, "temp_videos")
+    temp_dir = os.path.join(BASE_DIR, "temp")
     os.makedirs(temp_dir, exist_ok=True)
 
     lost_path = os.path.join(temp_dir, "lost.jpg")
@@ -53,9 +35,9 @@ async def analyze(
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Extract features
+    # Extract lost image features
     lost_img = Image.open(lost_path).convert("RGB")
-    lost_desc = extract_features(lost_img)
+    kp1, des1 = extract_features(lost_img)
 
     frames = extract_frames(video_path)
 
@@ -63,25 +45,18 @@ async def analyze(
     best_timestamp = 0
 
     for frame, timestamp in frames:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        # 🔥 check multiple regions instead of full frame
-        regions = get_candidate_regions(frame)
+        kp2, des2 = extract_features(Image.fromarray(gray))
 
-        for region in regions:
-            img = Image.fromarray(
-                cv2.cvtColor(region, cv2.COLOR_BGR2RGB)
-            )
+        score = compute_similarity(kp1, des1, kp2, des2)
 
-            region_desc = extract_features(img)
+        if score > best_score:
+            best_score = score
+            best_timestamp = timestamp
 
-            score = compute_similarity(lost_desc, region_desc)
-
-            if score > best_score:
-                best_score = score
-                best_timestamp = timestamp
-
-    # 🔥 FINAL DECISION (tuned for your case)
-    if best_score > 12:
+    # 🔥 FINAL DECISION
+    if best_score > 10:
         meta = list(camera_map.values())[0]
 
         return {
