@@ -13,7 +13,7 @@ router = APIRouter(
 BASE_DIR = os.path.dirname(__file__)
 
 
-# ---------------- ORB FEATURES ----------------
+# ---------------- ORB FEATURE EXTRACTION ----------------
 def extract_orb(image):
     image = np.array(image)
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -24,7 +24,7 @@ def extract_orb(image):
     return desc
 
 
-# ---------------- ORB MATCH ----------------
+# ---------------- ORB MATCHING ----------------
 def orb_score(desc1, desc2):
     if desc1 is None or desc2 is None:
         return 0
@@ -87,6 +87,7 @@ async def analyze(
     lost_path = os.path.join(temp_dir, "lost.jpg")
     video_path = os.path.join(temp_dir, "video.mp4")
 
+    # Save files
     with open(lost_path, "wb") as f:
         shutil.copyfileobj(lost_image.file, f)
 
@@ -102,39 +103,40 @@ async def analyze(
 
     best_score = 0
     best_timestamp = 0
-    match_found = False
+    match_count = 0
+
+    # 🔥 FINAL TUNED VALUES
+    ORB_THRESHOLD = 15
+    COLOR_THRESHOLD = 0.6
+    REQUIRED_MATCH_FRAMES = 2
 
     for frame, timestamp in frames:
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # ORB score
         frame_desc = extract_orb(Image.fromarray(frame_rgb))
-        o_score = orb_score(lost_desc, frame_desc)
 
-        # Color score
+        o_score = orb_score(lost_desc, frame_desc)
         c_score = color_similarity(lost_np, frame_rgb)
 
-        # 🔥 Combined score
-        final_score = o_score + (c_score * 20)
-
-        if final_score > best_score:
-            best_score = final_score
+        if o_score > best_score:
+            best_score = o_score
             best_timestamp = timestamp
 
-        # 🔥 Threshold (balanced)
-        if final_score > 25:
-            match_found = True
+        # 🔥 STRICT CONDITION (both required)
+        if o_score > ORB_THRESHOLD and c_score > COLOR_THRESHOLD:
+            match_count += 1
 
-    if match_found:
+    # ---------------- FINAL RESULT ----------------
+    if match_count >= REQUIRED_MATCH_FRAMES:
         return {
             "status": "MATCH_FOUND",
             "camera_id": "Camera 2",
             "room_no": "Block B - Room 205",
-            "confidence": round(best_score, 2),
+            "confidence": int(best_score),
             "timestamp": round(best_timestamp, 2)
         }
 
     return {
         "status": "NO_MATCH",
-        "confidence": round(best_score, 2)
+        "confidence": int(best_score)
     }
