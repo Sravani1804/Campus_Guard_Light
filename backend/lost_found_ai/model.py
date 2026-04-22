@@ -6,7 +6,7 @@ def extract_features(image: Image.Image):
     image = np.array(image)
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    orb = cv2.ORB_create()
-    keypoints, descriptors = orb.detectAndCompute(gray, None)
+    orb = cv2.ORB_create(nfeatures=1000)
+    _, descriptors = orb.detectAndCompute(gray, None)
 
-    return keypoints, descriptors
+    return descriptors
