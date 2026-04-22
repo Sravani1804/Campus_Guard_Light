@@ -6,6 +6,7 @@ def compute_similarity(kp1, des1, kp2, des2):
         return 0
 
     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+
     matches = bf.knnMatch(des1, des2, k=2)
 
     good = []
@@ -16,7 +17,7 @@ def compute_similarity(kp1, des1, kp2, des2):
     if len(good) < 8:
         return 0
 
-    # 🔥 RANSAC (key fix)
+    # 🔥 RANSAC filtering
     src_pts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1,1,2)
     dst_pts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1,1,2)
 
@@ -25,6 +26,4 @@ def compute_similarity(kp1, des1, kp2, des2):
     if mask is None:
         return 0
 
-    inliers = np.sum(mask)
-
-    return int(inliers)
+    return int(mask.sum())
