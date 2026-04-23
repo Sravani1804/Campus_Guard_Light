@@ -1,10 +1,8 @@
 from fastapi import APIRouter, UploadFile, File
-import os, shutil, json, cv2
-from PIL import Image
-
-from .model import extract_features
-from .video_utils import extract_frames
-from .similarity import compute_similarity
+import os
+import shutil
+import cv2
+import numpy as np
 
 router = APIRouter(
     prefix="/lost-found",
@@ -13,11 +11,58 @@ router = APIRouter(
 
 BASE_DIR = os.path.dirname(__file__)
 
-# Load camera metadata
-with open(os.path.join(BASE_DIR, "../utils/camera_mapping.json")) as f:
-    camera_map = json.load(f)
+
+# ---------------- FRAME EXTRACTION ----------------
+def extract_frames(video_path, interval=20):
+    cap = cv2.VideoCapture(video_path)
+    frames = []
+    count = 0
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        if count % interval == 0:
+            timestamp = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000
+            frames.append((frame, timestamp))
+
+        count += 1
+
+    cap.release()
+    return frames
 
 
+# ---------------- IMAGE SIMILARITY ----------------
+def similarity(img1, img2):
+    img1 = cv2.resize(img1, (128, 128))
+    img2 = cv2.resize(img2, (128, 128))
+
+    diff = cv2.absdiff(img1, img2)
+    return np.mean(diff)
+
+
+# ---------------- SLIDING WINDOW ----------------
+def find_best_match(lost_img, frame):
+    h, w, _ = frame.shape
+
+    best_score = float("inf")
+
+    # slide window
+    for y in range(0, h - 100, 50):
+        for x in range(0, w - 100, 50):
+
+            crop = frame[y:y+100, x:x+100]
+
+            score = similarity(lost_img, crop)
+
+            if score < best_score:
+                best_score = score
+
+    return best_score
+
+
+# ---------------- MAIN API ----------------
 @router.post("/analyze")
 async def analyze(
     lost_image: UploadFile = File(...),
@@ -36,45 +81,31 @@ async def analyze(
     with open(video_path, "wb") as f:
         shutil.copyfileobj(video.file, f)
 
-    # Extract features from lost image
-    lost_img = Image.open(lost_path).convert("RGB")
-    kp1, des1 = extract_features(lost_img)
+    lost_img = cv2.imread(lost_path)
 
     frames = extract_frames(video_path)
 
-    best_score = 0
+    best_score = float("inf")
     best_timestamp = 0
 
     for frame, timestamp in frames:
+        score = find_best_match(lost_img, frame)
 
-        # 🔥 FIX: always convert to RGB properly
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        kp2, des2 = extract_features(Image.fromarray(rgb_frame))
-
-        # 🔥 safety check (prevents crash)
-        if des2 is None or kp2 is None or len(kp2) < 5:
-            continue
-
-        score = compute_similarity(kp1, des1, kp2, des2)
-
-        if score > best_score:
+        if score < best_score:
             best_score = score
             best_timestamp = timestamp
 
-    # 🔥 FINAL DECISION (TUNED)
-    if best_score > 10:
-        meta = list(camera_map.values())[0]
-
+    # 🔥 FINAL DECISION
+    if best_score < 35:
         return {
             "status": "MATCH_FOUND",
-            "camera_id": meta["camera_id"],
-            "room_no": meta["room_no"],
-            "confidence": int(best_score),
+            "camera_id": "Camera 2",
+            "room_no": "Block B - Room 205",
+            "confidence": round(float(best_score), 2),
             "timestamp": round(best_timestamp, 2)
         }
 
     return {
         "status": "NO_MATCH",
-        "confidence": int(best_score)
+        "confidence": round(float(best_score), 2)
     }
